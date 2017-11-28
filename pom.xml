@@ -102,6 +102,18 @@
 			<artifactId>spring-social-facebook</artifactId>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-core -->
+		<!--<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+			<version>3.5.3</version>
+		</dependency>-->
+
+		<dependency>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>5.5.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -110,6 +122,15 @@
 	</dependencies>
 
 	<build>
+		<!--<plugins>
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<configuration>
+					<propertyFile>/Users/arshaktovmasyan/Developer/Oauth2Implementation/src/main/resources/liquibase.properties </propertyFile>
+				</configuration>
+			</plugin>
+		</plugins>-->
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -117,6 +138,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>

@@ -17,15 +17,17 @@ import java.util.Date;
 @NoArgsConstructor
 public class UserPayload {
 
+    private String userName;
+
     private String firstName;
 
     private String lastName;
 
-    private String userName;
+    private String email;
 
     private String password;
 
-    private String email;
+
 
     /*@NotBlank
     @NotNull

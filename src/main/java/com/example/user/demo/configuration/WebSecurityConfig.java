@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @SuppressWarnings("SpringJavaAutowiringInspection")
 @Configuration
 @EnableWebSecurity
@@ -59,7 +60,7 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
                 //.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 // allow anonymous resource requests
-                .antMatchers("/login/**, /webjars/**").permitAll()
+                .antMatchers("/users").access("hasRole('ROLE_ADMIN')")
                 .antMatchers("/sign-up").permitAll()
                 .antMatchers("/auth").permitAll()
                 .anyRequest().authenticated()

@@ -4,8 +4,10 @@ import com.example.user.demo.binding.UserPayload;
 import com.example.user.demo.model.Authority;
 import com.example.user.demo.model.AuthorityName;
 import com.example.user.demo.model.User;
+import com.example.user.demo.repository.AuthorityRepository;
 import com.example.user.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,34 +17,44 @@ public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
 
+    private PasswordEncoder passwordEncoder;
+
+    private AuthorityRepository authorityRepository;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository){
-        this.userRepository=userRepository;
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authorityRepository = authorityRepository;
     }
 
     @Override
     public User create(UserPayload userPayload) {
         List<Authority> list = new ArrayList<>();
         Authority authority = new Authority();
-        AuthorityName authorityName = AuthorityName.ROLE_ADMIN;
+        String authorityName = "ROLE_USER";
         authority.setName(authorityName);
         if (userRepository.findByUserName(userPayload.getUserName())!= null){
             throw new IllegalStateException("User with this email already exists");
         }
+
         User user = new User();
         user.setFirstName(userPayload.getFirstName());
         user.setLastName(userPayload.getLastName());
         user.setUserName(userPayload.getUserName());
         user.setEmail(userPayload.getEmail());
-        user.setPassword(userPayload.getPassword());
+        user.setPassword(passwordEncoder.encode(userPayload.getPassword()));
         user.setEnabled(true);
         user.setLastPasswordResetDate(new Date());
         user.setAuthorities(list);
-        return userRepository.save(user);
+        authority.setUser(user);
+        userRepository.save(user);
+        authorityRepository.save(authority);
+        return user;
     }
 
     @Override
-    public User getOne(Integer id) {
+    public User getOne(Long id) {
         User user = userRepository.findOne(id);
         if (user == null){
             throw new NoSuchElementException("User by id" + id + "not found");
@@ -60,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(Integer id, UserPayload userPayload) {
+    public User update(Long id, UserPayload userPayload) {
        User user1 = userRepository.findOne(id);
        if (user1==null){
            throw new NoSuchElementException("User by id" + id + "not found");
@@ -69,12 +81,12 @@ public class UserServiceImpl implements UserService {
        user1.setLastName(userPayload.getLastName());
        user1.setUserName(userPayload.getUserName());
        user1.setEmail(userPayload.getEmail());
-       user1.setPassword(userPayload.getPassword());
+       user1.setPassword(passwordEncoder.encode(userPayload.getPassword()));
         return userRepository.save(user1);
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(Long id) {
         User user = userRepository.findOne(id);
         if (user == null){
             throw new NoSuchElementException("User by id" + id + "not found");

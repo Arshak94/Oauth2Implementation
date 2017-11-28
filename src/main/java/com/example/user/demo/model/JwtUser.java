@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.UUID;
 
 public class JwtUser implements UserDetails {
-    private final Integer id;
+    private final Long id;
     private final String username;
     private final String firstname;
     private final String lastname;
@@ -20,7 +20,7 @@ public class JwtUser implements UserDetails {
     private final Date lastPasswordResetDate;
 
     public JwtUser(
-            Integer id,
+            Long id,
             String username,
             String firstname,
             String lastname,
@@ -40,7 +40,7 @@ public class JwtUser implements UserDetails {
     }
 
     @JsonIgnore
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
