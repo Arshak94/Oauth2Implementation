@@ -2,7 +2,6 @@ package com.example.user.demo.service;
 
 import com.example.user.demo.binding.UserPayload;
 import com.example.user.demo.model.Authority;
-import com.example.user.demo.model.AuthorityName;
 import com.example.user.demo.model.User;
 import com.example.user.demo.repository.AuthorityRepository;
 import com.example.user.demo.repository.UserRepository;

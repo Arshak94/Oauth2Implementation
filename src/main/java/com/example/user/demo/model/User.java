@@ -68,6 +68,6 @@ public class User {
     @NotNull
     private Date lastPasswordResetDate;
 
-    @OneToMany( mappedBy = "user")
+    @OneToMany( mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Authority> authorities;
 }

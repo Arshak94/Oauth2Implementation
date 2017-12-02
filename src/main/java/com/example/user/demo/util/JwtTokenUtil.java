@@ -101,9 +101,10 @@ public class JwtTokenUtil implements Serializable{
 
     private String doGenerateToken(Map<String, Object> claims, String subject, String audience) {
         final Date createdDate = timeProvider.now();
-        final Date expirationDate = calculateExpirationDate(createdDate);
+        final Date expirationDate = calculateExpirationDateForAccesToken(createdDate);
 
         System.out.println("doGenerateToken " + createdDate);
+        System.out.println(expirationDate);
 
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, secret)
@@ -123,7 +124,21 @@ public class JwtTokenUtil implements Serializable{
 
     public String refreshToken(String token) {
         final Date createdDate = timeProvider.now();
-        final Date expirationDate = calculateExpirationDate(createdDate);
+        final Date expirationDate = calculateExpirationDateForRefreshToken(createdDate);
+
+        final Claims claims = getAllClaimsFromToken(token);
+        claims.setIssuedAt(createdDate);
+        claims.setExpiration(expirationDate);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .compact();
+    }
+
+    public String accessTokenfromRefreshToken(String token) {
+        final Date createdDate = timeProvider.now();
+        final Date expirationDate = calculateExpirationDateForAccesToken(createdDate);
 
         final Claims claims = getAllClaimsFromToken(token);
         claims.setIssuedAt(createdDate);
@@ -138,16 +153,20 @@ public class JwtTokenUtil implements Serializable{
     public Boolean validateToken(String token, UserDetails userDetails) {
         JwtUser user = (JwtUser) userDetails;
         final String username = getUsernameFromToken(token);
-        final Date created = getIssuedAtDateFromToken(token);
-        //final Date expiration = getExpirationDateFromToken(token);
+        //final Date created = getIssuedAtDateFromToken(token);
+        final Date expiration = getExpirationDateFromToken(token);
         return (
                 username.equals(user.getUsername())
                         && !isTokenExpired(token)
-                        && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())
+                        && !isCreatedBeforeLastPasswordReset(expiration, user.getLastPasswordResetDate())
         );
     }
 
-    private Date calculateExpirationDate(Date createdDate) {
-        return new Date(createdDate.getTime() + expiration * 1000);
+    private Date calculateExpirationDateForAccesToken(Date createdDate) {
+        return new Date(createdDate.getTime() + expiration*120);
+    }
+
+    private Date calculateExpirationDateForRefreshToken(Date createdDate){
+        return new Date(createdDate.getTime() + expiration*259200);
     }
 }

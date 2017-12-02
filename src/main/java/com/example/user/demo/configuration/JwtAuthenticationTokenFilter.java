@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.common.exceptions.UnauthorizedUserException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -48,11 +49,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             } catch (ExpiredJwtException e) {
                 logger.warn("the token is expired and not valid anymore", e);
             }
-        } else {
+        } else
             logger.warn("couldn't find bearer string, will ignore the header");
-        }
-
-        logger.info("checking authentication for user " + username);
+            if (username!=null){
+        logger.info("checking authentication for user " + username);}
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             // It is not compelling necessary to load the use details from the database. You could also store the information

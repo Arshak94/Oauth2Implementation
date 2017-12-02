@@ -23,9 +23,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController("/")
 public class AuthenticationRestController {
+
     @Value("${header}")
     private String tokenHeader;
 
@@ -39,7 +42,7 @@ public class AuthenticationRestController {
     private UserDetailsService userDetailsService;
 
     @RequestMapping(value = "auth", method = RequestMethod.POST)
-    public JwtAuthenticationResponse createAuthenticationToken(@RequestBody JwtAuthenticationPayload authenticationPayload,
+    public Map<String, String> createAuthenticationToken(@RequestBody JwtAuthenticationPayload authenticationPayload,
                                                                Device device) throws AuthenticationException {
         // Perform the security
         final Authentication authentication = authenticationManager.authenticate(
@@ -53,10 +56,16 @@ public class AuthenticationRestController {
         // Reload password post-security so we can generate token
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationPayload.getUsername());
 
-        final String token = jwtTokenUtil.generateToken(userDetails, device);
+        final String accesstoken = jwtTokenUtil.generateToken(userDetails, device);
+
+        final String refreshToken = jwtTokenUtil.refreshToken(accesstoken);
+
+        Map<String, String> tokenMap = new HashMap<String, String>();
+        tokenMap.put("access_token", accesstoken);
+        tokenMap.put("refresh_token", refreshToken);
 
         // Return the token
-        return new JwtAuthenticationResponse(token);
+        return tokenMap;
     }
 
     @RequestMapping(value = "refresh", method = RequestMethod.GET)
@@ -66,8 +75,8 @@ public class AuthenticationRestController {
         JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
 
         if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
-            String refreshedToken = jwtTokenUtil.refreshToken(token);
-            return new JwtAuthenticationResponse(refreshedToken);
+            String accesstoken = jwtTokenUtil.accessTokenfromRefreshToken(token);
+            return new JwtAuthenticationResponse(accesstoken);
         } else {
             throw new InvalidRequestException("unauthorized", null, HttpStatus.BAD_REQUEST);
         }
