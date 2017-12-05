@@ -6,11 +6,15 @@ import com.example.user.demo.model.JwtUser;
 import com.example.user.demo.model.User;
 import com.example.user.demo.service.JwtUserFactory;
 import com.example.user.demo.service.UserService;
+import com.example.user.demo.util.JwtTokenUtil;
+import org.codehaus.groovy.syntax.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +23,12 @@ import java.util.List;
 @RequestMapping
 public class UserController {
 
+    @Value("${header}")
+    private String tokenHeader;
+
+    @Autowired
+    private JwtTokenUtil tokenUtil;
+
     private UserService userService;
 
     @Autowired
@@ -26,9 +36,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{id}")
-    public JwtUser getUserById(@PathVariable Long id) throws Exception{
-        JwtUser jwtUser = JwtUserFactory.create(userService.getOne(id));
+    @GetMapping("/")
+    public JwtUser getUserById(HttpServletRequest request) throws Exception{
+        String token = request.getHeader(tokenHeader).substring(7);
+        JwtUser jwtUser = JwtUserFactory.create(userService.getOne(tokenUtil.getIdFromToken(token)));
         return jwtUser;
     }
 

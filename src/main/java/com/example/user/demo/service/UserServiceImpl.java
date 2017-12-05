@@ -7,6 +7,7 @@ import com.example.user.demo.repository.AuthorityRepository;
 import com.example.user.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.social.connect.UserProfile;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,6 +26,24 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
+    }
+
+    @Override
+    public User create(UserProfile userProfile) {
+        List<Authority> list = new ArrayList<>();
+        Authority authority = new Authority();
+        String authorityName = "ROLE_USER";
+        authority.setName(authorityName);
+        if (userRepository.findByUserName(userProfile.getEmail())!= null){
+            throw new IllegalStateException("User with this email already exists");
+        }
+        /*User user = User.builder()
+                .firstName(userProfile.getFirstName())
+                .lastName(userProfile.getLastName())
+                .email(userProfile.getEmail())
+                .userName(userProfile.getUsername())
+                .password(passwordEncoder.encode())*/
+        return null;
     }
 
     @Override

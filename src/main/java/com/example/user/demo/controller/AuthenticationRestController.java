@@ -54,9 +54,9 @@ public class AuthenticationRestController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Reload password post-security so we can generate token
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationPayload.getUsername());
+        final JwtUser jwtUser = (JwtUser) userDetailsService.loadUserByUsername(authenticationPayload.getUsername());
 
-        final String accesstoken = jwtTokenUtil.generateToken(userDetails, device);
+        final String accesstoken = jwtTokenUtil.generateToken(jwtUser, device);
 
         final String refreshToken = jwtTokenUtil.refreshToken(accesstoken);
 
@@ -70,7 +70,7 @@ public class AuthenticationRestController {
 
     @RequestMapping(value = "refresh", method = RequestMethod.GET)
     public JwtAuthenticationResponse refreshAndGetAuthenticationToken(HttpServletRequest request) {
-        String token = request.getHeader(tokenHeader);
+        String token = request.getHeader(tokenHeader).substring(7);
         String username = jwtTokenUtil.getUsernameFromToken(token);
         JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
 

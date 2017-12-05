@@ -1,6 +1,8 @@
 package com.example.user.demo.util;
 
+import com.example.user.demo.model.Authority;
 import com.example.user.demo.model.JwtUser;
+import com.example.user.demo.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -38,21 +41,34 @@ public class JwtTokenUtil implements Serializable{
     @Value("${expiration}")
     private Long expiration;
 
-    public String getUsernameFromToken(String token) {
-
-        return getClaimFromToken(token, Claims::getSubject);
-    }
+    public String getUsernameFromToken(String token) { return getClaimFromToken(token, Claims::getSubject); }
 
     public Date getIssuedAtDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getIssuedAt);
     }
 
-    public Date getExpirationDateFromToken(String token) {
-        return getClaimFromToken(token, Claims::getExpiration);
-    }
+    public Date getExpirationDateFromToken(String token) { return getClaimFromToken(token, Claims::getExpiration); }
 
     public String getAudienceFromToken(String token) {
         return getClaimFromToken(token, Claims::getAudience);
+    }
+
+    public User getAllUserDataFromToken(String token){
+        final Claims claims = getAllClaimsFromToken(token);
+        User user = new User();
+        user.setFirstName((String)claims.get("firsName"));
+        user.setLastName((String)claims.get("lastName"));
+        user.setEmail((String) claims.get("email"));
+        user.setPassword(((String) claims.get("password")));
+        user.setId(new Long((Integer)claims.get("user_id")));
+        user.setAuthorities((List<Authority>)claims.get("authorities"));
+
+        return  user;
+    }
+
+    public Long getIdFromToken(String token){
+        final Claims claims = getAllClaimsFromToken(token);
+        return new Long((Integer)claims.get("user_id"));
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -94,9 +110,15 @@ public class JwtTokenUtil implements Serializable{
         return (AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience));
     }
 
-    public String generateToken(UserDetails userDetails, Device device) {
+    public String generateToken(JwtUser jwtUser, Device device) {
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, userDetails.getUsername(), generateAudience(device));
+        claims.put("user_id", jwtUser.getId());
+        claims.put("firsName", jwtUser.getFirstname());
+        claims.put("lastName", jwtUser.getLastname());
+        claims.put("email", jwtUser.getEmail());
+        claims.put("password", jwtUser.getPassword());
+        claims.put("authorities", jwtUser.getAuthorities());
+        return doGenerateToken(claims, jwtUser.getUsername(), generateAudience(device));
     }
 
     private String doGenerateToken(Map<String, Object> claims, String subject, String audience) {

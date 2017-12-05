@@ -2,10 +2,13 @@ package com.example.user.demo.service;
 
 import com.example.user.demo.binding.UserPayload;
 import com.example.user.demo.model.User;
+import org.springframework.social.connect.UserProfile;
 
 import java.util.List;
 
 public interface UserService {
+
+    public User create(UserProfile userProfile);
 
     public User create(UserPayload userPayload);
 
