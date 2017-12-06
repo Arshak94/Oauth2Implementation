@@ -36,6 +36,12 @@ public class UserController {
         this.userService = userService;
     }
 
+
+    @GetMapping("/test")
+    public String test(){
+        return "bvcvb";
+    }
+
     @GetMapping("/")
     public JwtUser getUserById(HttpServletRequest request) throws Exception{
         String token = request.getHeader(tokenHeader).substring(7);

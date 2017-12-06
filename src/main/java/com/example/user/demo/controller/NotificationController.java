@@ -64,7 +64,7 @@ public class NotificationController {
         return new ResponseEntity<>("Push Notification ERROR!", HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/api/restCall", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+   /* @RequestMapping(value = "/api/restCall", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public DeferredResult<Object> restCall(@RequestBody Parameters requestBody) throws Exception {
 
 // idToken comes from the client app (shown above)
@@ -84,5 +84,5 @@ public class NotificationController {
                 });
         return promise;
 
-    }
+    }*/
 }
