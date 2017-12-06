@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
                 .lastName(userProfile.getLastName())
                 .email(userProfile.getEmail())
                 .userName(userProfile.getUsername())
-                .password(passwordEncoder.encode())*/
+                .password(userProfile.ge)*/
         return null;
     }
 

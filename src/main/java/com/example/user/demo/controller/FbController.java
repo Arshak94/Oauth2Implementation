@@ -34,7 +34,7 @@ public class FbController {
                 AccessGrant accessGrant = new AccessGrant(socialPayload.getAccess_token());
                 Connection<Facebook> connection = facebookConnectionFactory.createConnection(accessGrant);
                 UserProfile userProfile = connection.fetchUserProfile();
-                System.out.println(userProfile.getEmail());
+                //System.out.println(userProfile.getEmail());
                 usersConnectionRepository.createConnectionRepository(userProfile.getEmail()).addConnection(connection);
                // JwtUser jwtUser = JwtUserFactory.create(userService.create())
             }

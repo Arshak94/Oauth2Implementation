@@ -1,15 +1,16 @@
 package com.example.user.demo.controller;
 
 import com.example.user.demo.service.AndroidPushNotificationService;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -61,5 +62,27 @@ public class NotificationController {
         }
 
         return new ResponseEntity<>("Push Notification ERROR!", HttpStatus.BAD_REQUEST);
+    }
+
+    @RequestMapping(value = "/api/restCall", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public DeferredResult<Object> restCall(@RequestBody Parameters requestBody) throws Exception {
+
+// idToken comes from the client app (shown above)
+        String idToken = requestBody.getToken();
+        final DeferredResult<Object> promise = new DeferredResult<Object>();
+
+        Task<FirebaseToken> task = FirebaseAuth.getInstance().verifyIdToken(idToken)
+                .addOnSuccessListener(new OnSuccessListener<FirebaseToken>() {
+                    @Override
+                    public void onSuccess(FirebaseToken decodedToken) {
+                        String uid = decodedToken.getUid();
+                        // process the code here
+                        // once it is done
+                        promise.setResult(object);
+
+                    }
+                });
+        return promise;
+
     }
 }
