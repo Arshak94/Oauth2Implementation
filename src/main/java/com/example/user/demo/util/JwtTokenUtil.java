@@ -3,9 +3,11 @@ package com.example.user.demo.util;
 import com.example.user.demo.model.Authority;
 import com.example.user.demo.model.JwtUser;
 import com.example.user.demo.model.User;
+import com.example.user.demo.service.JwtUserFactory;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.http.auth.AUTH;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mobile.device.Device;
@@ -13,10 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Component
@@ -53,17 +52,34 @@ public class JwtTokenUtil implements Serializable{
         return getClaimFromToken(token, Claims::getAudience);
     }
 
-    public User getAllUserDataFromToken(String token){
+    public JwtUser getAllUserDataFromToken(String token){
         final Claims claims = getAllClaimsFromToken(token);
-        User user = new User();
-        user.setFirstName((String)claims.get("firsName"));
-        user.setLastName((String)claims.get("lastName"));
-        user.setEmail((String) claims.get("email"));
-        user.setPassword(((String) claims.get("password")));
-        user.setId(new Long((Integer)claims.get("user_id")));
-        user.setAuthorities((List<Authority>)claims.get("authorities"));
 
-        return  user;
+        JwtUser jwtUser = new JwtUser();
+        jwtUser.setId(new Long((Integer)claims.get("user_id")));
+        jwtUser.setFirstname((String)claims.get("firsName"));
+        jwtUser.setLastname((String)claims.get("lastName"));
+        jwtUser.setEmail((String) claims.get("email"));
+        jwtUser.setPassword(((String) claims.get("password")));
+        jwtUser.setUsername((String) claims.get("username"));
+        ArrayList<Object> objects = (ArrayList<Object>) claims.get("authorities");
+        LinkedHashMap<String, String> linkedHashMap = null;
+
+        List<Authority> authorities = new ArrayList<>();
+
+        for (int i = 0; i < objects.size(); i++) {
+            linkedHashMap= (LinkedHashMap<String, String>) objects.get(i);
+            List<String> keys = new ArrayList<>(linkedHashMap.keySet());
+            for (String key :
+                    keys) {
+                Authority authority = new Authority();
+                authority.setName(linkedHashMap.get(key));
+                authorities.add(authority);
+            }
+        }
+        jwtUser.setAuthorities(authorities);
+
+        return  jwtUser;
     }
 
     public Long getIdFromToken(String token){
@@ -117,7 +133,10 @@ public class JwtTokenUtil implements Serializable{
         claims.put("lastName", jwtUser.getLastname());
         claims.put("email", jwtUser.getEmail());
         claims.put("password", jwtUser.getPassword());
+        claims.put("username", jwtUser.getUsername());
         claims.put("authorities", jwtUser.getAuthorities());
+        claims.put("createdAt", jwtUser.getLastPasswordResetDate());
+        claims.put("enabled", jwtUser.getEnabled());
         return doGenerateToken(claims, jwtUser.getUsername(), generateAudience(device));
     }
 
@@ -133,6 +152,28 @@ public class JwtTokenUtil implements Serializable{
                 .setClaims(claims)
                 .setSubject(subject)
                 .setAudience(audience)
+                .setIssuedAt(createdDate)
+                .setExpiration(expirationDate)
+                .compact();
+    }
+    public String accessTokenfromRefreshToken(String token, Device device) {
+        final Date createdDate = timeProvider.now();
+        final Date expirationDate = calculateExpirationDateForAccesToken(createdDate);
+        JwtUser jwtUser = getAllUserDataFromToken(token);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("user_id", jwtUser.getId());
+        claims.put("firsName", jwtUser.getFirstname());
+        claims.put("lastName", jwtUser.getLastname());
+        claims.put("email", jwtUser.getEmail());
+        claims.put("password", jwtUser.getPassword());
+        claims.put("authorities", jwtUser.getAuthorities());
+        claims.put("createdAt", jwtUser.getLastPasswordResetDate());
+        claims.put("enabled", jwtUser.getEnabled());
+        return Jwts.builder()
+                .setClaims(claims)
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .setSubject(jwtUser.getUsername())
+                .setAudience(generateAudience(device))
                 .setIssuedAt(createdDate)
                 .setExpiration(expirationDate)
                 .compact();
@@ -158,19 +199,7 @@ public class JwtTokenUtil implements Serializable{
                 .compact();
     }
 
-    public String accessTokenfromRefreshToken(String token) {
-        final Date createdDate = timeProvider.now();
-        final Date expirationDate = calculateExpirationDateForAccesToken(createdDate);
 
-        final Claims claims = getAllClaimsFromToken(token);
-        claims.setIssuedAt(createdDate);
-        claims.setExpiration(expirationDate);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, secret)
-                .compact();
-    }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         JwtUser user = (JwtUser) userDetails;

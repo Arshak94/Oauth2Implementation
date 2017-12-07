@@ -69,13 +69,13 @@ public class AuthenticationRestController {
     }
 
     @RequestMapping(value = "refresh", method = RequestMethod.GET)
-    public JwtAuthenticationResponse refreshAndGetAuthenticationToken(HttpServletRequest request) {
+    public JwtAuthenticationResponse refreshAndGetAuthenticationToken(HttpServletRequest request, Device device) {
         String token = request.getHeader(tokenHeader).substring(7);
         String username = jwtTokenUtil.getUsernameFromToken(token);
         JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
 
         if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
-            String accesstoken = jwtTokenUtil.accessTokenfromRefreshToken(token);
+            String accesstoken = jwtTokenUtil.accessTokenfromRefreshToken(token, device);
             return new JwtAuthenticationResponse(accesstoken);
         } else {
             throw new InvalidRequestException("unauthorized", null, HttpStatus.BAD_REQUEST);
