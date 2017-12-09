@@ -6,6 +6,7 @@ import com.example.user.demo.repository.AuthorityRepository;
 import com.example.user.demo.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -26,10 +27,13 @@ public class FaceBookServiceImpl implements FaceBookService {
 
     private AuthorityRepository authorityRepository;
 
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
-    public FaceBookServiceImpl(UserRepository userRepository, AuthorityRepository authorityRepository){
+    public FaceBookServiceImpl(UserRepository userRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder){
         this.userRepository=userRepository;
         this.authorityRepository=authorityRepository;
+        this.passwordEncoder=passwordEncoder;
     }
     @Override
     public User create(org.springframework.social.facebook.api.User user) {
@@ -51,7 +55,7 @@ public class FaceBookServiceImpl implements FaceBookService {
         } catch (ParseException e) {
             log.info(e.getMessage());
         }
-        myUser.setPassword(user.getFirstName()+user.getLastName());
+        myUser.setPassword(passwordEncoder.encode(user.getFirstName()+user.getLastName()));
         myUser.setLastPasswordResetDate(new Date());
         myUser.setEnabled(true);
         authority.setUser(myUser);
