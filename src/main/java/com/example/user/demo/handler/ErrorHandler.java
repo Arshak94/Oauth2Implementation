@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.text.ParseException;
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
@@ -17,5 +18,9 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResource handlIllegalArgument(IllegalArgumentException e){
         return new ErrorResource("404", e.getMessage());
+    }
+    @ExceptionHandler
+    public ErrorResource handlParseException(ParseException e){
+        return new ErrorResource("415", e.getMessage());
     }
 }

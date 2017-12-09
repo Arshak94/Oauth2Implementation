@@ -4,6 +4,7 @@ import com.example.user.demo.model.Authority;
 import com.example.user.demo.model.JwtUser;
 import com.example.user.demo.model.User;
 import com.example.user.demo.service.JwtUserFactory;
+import com.example.user.demo.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -40,6 +41,9 @@ public class JwtTokenUtil implements Serializable{
     @Value("${expiration}")
     private Long expiration;
 
+    @Autowired
+    private UserService userService;
+
     public String getUsernameFromToken(String token) { return getClaimFromToken(token, Claims::getSubject); }
 
     public Date getIssuedAtDateFromToken(String token) {
@@ -61,7 +65,7 @@ public class JwtTokenUtil implements Serializable{
         jwtUser.setLastname((String)claims.get("lastName"));
         jwtUser.setEmail((String) claims.get("email"));
         jwtUser.setPassword(((String) claims.get("password")));
-        jwtUser.setUsername((String) claims.get("username"));
+        //jwtUser.setUsername((String) claims.get("username"));
         ArrayList<Object> objects = (ArrayList<Object>) claims.get("authorities");
         LinkedHashMap<String, String> linkedHashMap = null;
 
@@ -131,16 +135,16 @@ public class JwtTokenUtil implements Serializable{
         claims.put("user_id", jwtUser.getId());
         claims.put("firsName", jwtUser.getFirstname());
         claims.put("lastName", jwtUser.getLastname());
-        claims.put("email", jwtUser.getEmail());
+        claims.put("email", jwtUser.getUsername());
         claims.put("password", jwtUser.getPassword());
-        claims.put("username", jwtUser.getUsername());
+        claims.put("dateOfBirth", jwtUser.getDateOfBirth());
         claims.put("authorities", jwtUser.getAuthorities());
         claims.put("createdAt", jwtUser.getLastPasswordResetDate());
         claims.put("enabled", jwtUser.getEnabled());
-        return doGenerateToken(claims, jwtUser.getUsername(), generateAudience(device));
+        return doGenerateAccessToken(claims, jwtUser.getUsername(), generateAudience(device));
     }
 
-    private String doGenerateToken(Map<String, Object> claims, String subject, String audience) {
+    private String doGenerateAccessToken(Map<String, Object> claims, String subject, String audience) {
         final Date createdDate = timeProvider.now();
         final Date expirationDate = calculateExpirationDateForAccesToken(createdDate);
 
@@ -157,26 +161,31 @@ public class JwtTokenUtil implements Serializable{
                 .compact();
     }
     public String accessTokenfromRefreshToken(String token, Device device) {
-        final Date createdDate = timeProvider.now();
-        final Date expirationDate = calculateExpirationDateForAccesToken(createdDate);
-        JwtUser jwtUser = getAllUserDataFromToken(token);
+        /*final Date createdDate = timeProvider.now();
+        final Date expirationDate = calculateExpirationDateForAccesToken(createdDate);*/
+
+        Long id = getIdFromToken(token);
+        JwtUser jwtUser = JwtUserFactory.create(userService.getOne(id));
+
+        return generateToken(jwtUser, device);
+        /*JwtUser jwtUser = getAllUserDataFromToken(token);
         Map<String, Object> claims = new HashMap<>();
         claims.put("user_id", jwtUser.getId());
         claims.put("firsName", jwtUser.getFirstname());
         claims.put("lastName", jwtUser.getLastname());
-        claims.put("email", jwtUser.getEmail());
+        claims.put("email", jwtUser.getUsername());
         claims.put("password", jwtUser.getPassword());
         claims.put("authorities", jwtUser.getAuthorities());
         claims.put("createdAt", jwtUser.getLastPasswordResetDate());
-        claims.put("enabled", jwtUser.getEnabled());
-        return Jwts.builder()
+        claims.put("enabled", jwtUser.getEnabled());*/
+        /*return Jwts.builder()
                 .setClaims(claims)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .setSubject(jwtUser.getUsername())
                 .setAudience(generateAudience(device))
                 .setIssuedAt(createdDate)
                 .setExpiration(expirationDate)
-                .compact();
+                .compact();*/
     }
 
     public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
@@ -185,17 +194,23 @@ public class JwtTokenUtil implements Serializable{
                 && (!isTokenExpired(token) || ignoreTokenExpiration(token));
     }
 
-    public String refreshToken(String token) {
+    public String generateRefreshToken(JwtUser jwtUser, Device device) {
         final Date createdDate = timeProvider.now();
         final Date expirationDate = calculateExpirationDateForRefreshToken(createdDate);
 
-        final Claims claims = getAllClaimsFromToken(token);
-        claims.setIssuedAt(createdDate);
-        claims.setExpiration(expirationDate);
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("user_id", jwtUser.getId());
+        claims.put("email", jwtUser.getUsername());
+        claims.put("password", jwtUser.getPassword());
 
         return Jwts.builder()
-                .setClaims(claims)
                 .signWith(SignatureAlgorithm.HS512, secret)
+                .setClaims(claims)
+                .setSubject(jwtUser.getUsername())
+                .setAudience(generateAudience(device))
+                .setIssuedAt(createdDate)
+                .setExpiration(expirationDate)
                 .compact();
     }
 

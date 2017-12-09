@@ -29,16 +29,9 @@ public class User {
 
     @NotBlank
     @NotNull
-    @Column(name = "user_name")
-    private String userName;
-
-    @NotBlank
-    @NotNull
     @Column(name = "first_name")
     private String firstName;
 
-    @NotBlank
-    @NotNull
     @Column(name = "last_name")
     private String lastName;
 
@@ -48,20 +41,32 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "created_at")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss Z")
-    private Date createdAt = new Date();
+    @Column(name = "date_of_birth")
+    private Date dateOfBirth;
 
     @NotNull
     @NotBlank
     @Column(name = "user_password")
     private String password;
 
+    @Column(name = "profession")
+    private String profession;
+
     @Column(name = "enabled")
-    @NotNull
     private Boolean enabled;
 
-    @Column(name = "lastPasswordResetDate")
+    @Column(name = "gender")
+    private Boolean gender;
+
+    /*@Column(name = "photo")
+    @Lob
+    private byte[] photo;*/
+
+    @Column(name = "created_at")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss Z")
+    private Date createdAt = new Date();
+
+    @Column(name = "last_password_reset_date")
     @Temporal(TemporalType.TIMESTAMP)
     @NotNull
     private Date lastPasswordResetDate;

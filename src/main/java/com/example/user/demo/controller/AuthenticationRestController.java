@@ -47,18 +47,17 @@ public class AuthenticationRestController {
         // Perform the security
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        authenticationPayload.getUsername(),
+                        authenticationPayload.getEmail(),
                         authenticationPayload.getPassword()
-                )
-        );
+                ));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Reload password post-security so we can generate token
-        final JwtUser jwtUser = (JwtUser) userDetailsService.loadUserByUsername(authenticationPayload.getUsername());
+        final JwtUser jwtUser = (JwtUser) userDetailsService.loadUserByUsername(authenticationPayload.getEmail());
 
         final String accesstoken = jwtTokenUtil.generateToken(jwtUser, device);
 
-        final String refreshToken = jwtTokenUtil.refreshToken(accesstoken);
+        final String refreshToken = jwtTokenUtil.generateRefreshToken(jwtUser, device);
 
         Map<String, String> tokenMap = new HashMap<String, String>();
         tokenMap.put("access_token", accesstoken);

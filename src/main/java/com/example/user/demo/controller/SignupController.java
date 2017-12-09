@@ -12,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.File;
 
 
 @Slf4j
@@ -33,8 +34,10 @@ public class SignupController {
         if (bindingResult.hasErrors()){
             throw new InvalidRequestException("Validation issue", bindingResult);
         }
+        if (userPayload.getPassword()==(userPayload.getRepeatPassword())){
+            throw new InvalidRequestException("passwords are not the match");
+        }
         JwtUser jwtUser = JwtUserFactory.create(userService.create(userPayload));
-
         return jwtUser;
     }
 

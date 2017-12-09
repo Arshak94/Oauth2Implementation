@@ -2,6 +2,7 @@ package com.example.user.demo.service;
 
 import com.example.user.demo.binding.UserPayload;
 import com.example.user.demo.model.Authority;
+import com.example.user.demo.model.JwtUser;
 import com.example.user.demo.model.User;
 import com.example.user.demo.repository.AuthorityRepository;
 import com.example.user.demo.repository.UserRepository;
@@ -34,7 +35,7 @@ public class UserServiceImpl implements UserService {
         Authority authority = new Authority();
         String authorityName = "ROLE_USER";
         authority.setName(authorityName);
-        if (userRepository.findByUserName(userProfile.getEmail())!= null){
+        if (userRepository.findByEmail(userProfile.getEmail())!= null){
             throw new IllegalStateException("User with this email already exists");
         }
         /*User user = User.builder()
@@ -48,26 +49,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(UserPayload userPayload) {
+
+        if (userRepository.findByEmail(userPayload.getEmail())!= null){
+            throw new IllegalStateException("User with this email already exists");
+        }
         List<Authority> list = new ArrayList<>();
         Authority authority = new Authority();
         String authorityName = "ROLE_USER";
         authority.setName(authorityName);
-        if (userRepository.findByUserName(userPayload.getUserName())!= null){
-            throw new IllegalStateException("User with this email already exists");
-        }
-
+        list.add(authority);
         User user = new User();
         user.setFirstName(userPayload.getFirstName());
         user.setLastName(userPayload.getLastName());
-        user.setUserName(userPayload.getUserName());
         user.setEmail(userPayload.getEmail());
         user.setPassword(passwordEncoder.encode(userPayload.getPassword()));
+        user.setDateOfBirth(userPayload.getDateOfBirth());
+        user.setProfession(userPayload.getProfession());
         user.setEnabled(true);
         user.setLastPasswordResetDate(new Date());
         user.setAuthorities(list);
         authority.setUser(user);
         userRepository.save(user);
-        authorityRepository.save(authority);
+        //authorityRepository.save(authority);
         return user;
     }
 
@@ -97,7 +100,7 @@ public class UserServiceImpl implements UserService {
        }
        user1.setFirstName(userPayload.getFirstName());
        user1.setLastName(userPayload.getLastName());
-       user1.setUserName(userPayload.getUserName());
+       //user1.setUserName(userPayload.getUserName());
        user1.setEmail(userPayload.getEmail());
        user1.setPassword(passwordEncoder.encode(userPayload.getPassword()));
         return userRepository.save(user1);

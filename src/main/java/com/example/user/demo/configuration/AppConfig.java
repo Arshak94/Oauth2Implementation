@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.social.config.annotation.EnableSocial;
+import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.facebook.api.Facebook;
+import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
 
 import javax.sql.DataSource;

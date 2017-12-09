@@ -17,23 +17,24 @@ import java.util.Date;
 @NoArgsConstructor
 public class UserPayload {
 
-    private String userName;
 
     private String firstName;
 
     private String lastName;
 
+
     private String email;
+
 
     private String password;
 
 
+    private String repeatPassword;
 
-    /*@NotBlank
-    @NotNull
-    private Boolean enabled = true;
+    private Date dateOfBirth;
 
-    @NotNull
-    @NotBlank
-    private Date lastPasswordResetDate = new Date();*/
+
+    private String profession;
+
+
 }
