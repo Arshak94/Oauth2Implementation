@@ -67,6 +67,7 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
                 // allow anonymous resource requests
 
                 .antMatchers("/users").access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/my-google-url").permitAll()
                 .antMatchers("/my-facebook-url").permitAll()
                 .antMatchers("/sign-up").permitAll()
                 .antMatchers("/auth").permitAll()

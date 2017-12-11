@@ -1,5 +1,10 @@
 package com.example.user.demo.controller;
 
+/**
+ * Date 12/9/17
+ * Developer: Arshak Tovmasyan
+ */
+
 import com.example.user.demo.binding.JwtAuthenticationPayload;
 import com.example.user.demo.exception.InvalidRequestException;
 import com.example.user.demo.model.JwtUser;

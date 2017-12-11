@@ -2,7 +2,6 @@ package com.example.user.demo.service;
 
 import com.example.user.demo.binding.UserPayload;
 import com.example.user.demo.model.Authority;
-import com.example.user.demo.model.JwtUser;
 import com.example.user.demo.model.User;
 import com.example.user.demo.repository.AuthorityRepository;
 import com.example.user.demo.repository.UserRepository;
@@ -67,10 +66,9 @@ public class UserServiceImpl implements UserService {
         user.setProfession(userPayload.getProfession());
         user.setEnabled(true);
         user.setLastPasswordResetDate(new Date());
-        user.setAuthorities(list);
         authority.setUser(user);
         userRepository.save(user);
-        //authorityRepository.save(authority);
+        authorityRepository.save(authority);
         return user;
     }
 
