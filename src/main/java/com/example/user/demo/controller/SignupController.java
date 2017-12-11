@@ -47,20 +47,23 @@ public class SignupController {
             throw new InvalidRequestException("passwords are not the match");
         }
         User user = userService.create(userPayload);
-        String appUrl = request.getScheme() + "://" + request.getServerName()+"8082";
+        String appUrl = request.getScheme() + "://" + request.getServerName();
         SimpleMailMessage registrationEmail=new SimpleMailMessage();
         registrationEmail.setTo(user.getEmail());
         registrationEmail.setSubject("Registration Confirmation");
         registrationEmail.setText("To confirm your e-mail address, please click the link below:\n"
                 + appUrl + "/" + user.getEmail());
-        registrationEmail.setFrom(user.getEmail());
+        registrationEmail.setFrom("arshak94@list.ru");
         emailSevice.sendEmail(registrationEmail);
-        JwtUser jwtUser = JwtUserFactory.create(user);
+        //JwtUser jwtUser = JwtUserFactory.create(user);
         EmailMassage emailMassage = new EmailMassage("To confirm e-mail address, please check your email and confirm");
         return emailMassage;
     }
 
-    //public String confi
+    @PostMapping("/email")
+    public EmailMassage confirmEmail(@PathVariable String email){
+        return userService.get(email);
+    }
 
 }
 

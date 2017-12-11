@@ -5,6 +5,7 @@ import com.example.user.demo.model.Authority;
 import com.example.user.demo.model.User;
 import com.example.user.demo.repository.AuthorityRepository;
 import com.example.user.demo.repository.UserRepository;
+import com.example.user.demo.response.EmailMassage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.social.connect.UserProfile;
@@ -29,21 +30,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User create(UserProfile userProfile) {
-        List<Authority> list = new ArrayList<>();
-        Authority authority = new Authority();
-        String authorityName = "ROLE_USER";
-        authority.setName(authorityName);
-        if (userRepository.findByEmail(userProfile.getEmail())!= null){
-            throw new IllegalStateException("User with this email already exists");
-        }
-        /*User user = User.builder()
-                .firstName(userProfile.getFirstName())
-                .lastName(userProfile.getLastName())
-                .email(userProfile.getEmail())
-                .userName(userProfile.getUsername())
-                .password(userProfile.ge)*/
-        return null;
+    public EmailMassage get(String email) {
+       User user = userRepository.findByEmail(email);
+       user.setEnabled(true);
+       userRepository.save(user);
+       EmailMassage emailMassage = new EmailMassage("barev dzez");
+       return emailMassage;
     }
 
     @Override
@@ -64,7 +56,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(userPayload.getPassword()));
         user.setDateOfBirth(userPayload.getDateOfBirth());
         user.setProfession(userPayload.getProfession());
-        user.setEnabled(true);
+        user.setEnabled(false);
         user.setLastPasswordResetDate(new Date());
         authority.setUser(user);
         userRepository.save(user);

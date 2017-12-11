@@ -2,13 +2,14 @@ package com.example.user.demo.service;
 
 import com.example.user.demo.binding.UserPayload;
 import com.example.user.demo.model.User;
+import com.example.user.demo.response.EmailMassage;
 import org.springframework.social.connect.UserProfile;
 
 import java.util.List;
 
 public interface UserService {
 
-    public User create(UserProfile userProfile);
+    public EmailMassage get(String email);
 
     public User create(UserPayload userPayload);
 
