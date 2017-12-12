@@ -8,7 +8,6 @@ import com.example.user.demo.repository.UserRepository;
 import com.example.user.demo.response.EmailMassage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.social.connect.UserProfile;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -39,7 +38,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User create(UserPayload userPayload) {
+    public User create(UserPayload userPayload, UUID uuid) {
 
         if (userRepository.findByEmail(userPayload.getEmail())!= null){
             throw new IllegalStateException("User with this email already exists");
@@ -50,6 +49,7 @@ public class UserServiceImpl implements UserService {
         authority.setName(authorityName);
         list.add(authority);
         User user = new User();
+        user.setUuid(uuid);
         user.setFirstName(userPayload.getFirstName());
         user.setLastName(userPayload.getLastName());
         user.setEmail(userPayload.getEmail());

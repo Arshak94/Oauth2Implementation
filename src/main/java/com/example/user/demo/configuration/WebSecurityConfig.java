@@ -70,7 +70,7 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
                 .antMatchers("/my-google-url").permitAll()
                 .antMatchers("/my-facebook-url").permitAll()
                 .antMatchers("/sign-up").permitAll()
-                .antMatchers("/arshak94@list.ru").permitAll()
+                .antMatchers("/arshak94@list.ru/").permitAll()
                 .antMatchers("/auth").permitAll()
                 .antMatchers("/**").authenticated()
                 .anyRequest().authenticated()
